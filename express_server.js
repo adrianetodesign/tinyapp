@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
-const { url } = require("inspector");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
@@ -15,6 +14,7 @@ function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
 }
 
+// Routing
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -23,6 +23,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// urls index page
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
@@ -42,6 +43,12 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect(`/urls`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -65,5 +72,3 @@ app.get("/set", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-console.log(generateRandomString());
