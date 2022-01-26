@@ -24,13 +24,12 @@ function generateRandomString(size) {
   return Math.random().toString(36).substr(2, size);
 }
 
-function emailExists(email) {
+function getUserByEmail(email) {
   for (user in users) {
     if (users[user].email === email) {
-      return true;
+      return users[user];
     }
   }
-  return false;
 }
 
 // Routing
@@ -96,7 +95,7 @@ app.post("/register", (req,res) => {
   if (password === "" || email === "") {
     res.status(400).send("Please enter a valid email or password.");
   }
-  if (emailExists(email)) {
+  if (email === getUserByEmail(email).email) {
     res.status(400).send("This email address is already in use.");
   }
   else {
@@ -111,10 +110,29 @@ app.post("/register", (req,res) => {
   }
 });
 
+app.get("/login", (req,res) => {
+  const templateVars = { 
+    user: users[req.cookies["user_id"]]
+  };
+  res.render("urls_login", templateVars);
+})
+
 // Login
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
+  const inputEmail = req.body.email;
+  const inputPassword = req.body.password;
+  const user = getUserByEmail(inputEmail);
+  if (inputEmail !== user.email) {
+    res.status(403).send(`${inputEmail} not found.`);
+  }
+  if (inputPassword !== user.password) {
+    res.status(403).send(`Incorrect password.`);
+  }
+  else {
+    res.cookie('user_id',user.id);
+    res.redirect("/urls");
+  }
+
   res.redirect("/urls");
 });
 
@@ -132,19 +150,6 @@ app.get("/u/:shortURL", (req, res) => {
   }
   res.redirect(longURL);
 });
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
- });
- 
- app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
- });
 
 app.listen(PORT, () => {
   console.log(`tinyapp listening on port ${PORT}!`);
