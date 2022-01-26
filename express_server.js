@@ -93,10 +93,10 @@ app.post("/register", (req,res) => {
   const password = req.body.password;
   const userId =  generateRandomString(6);
   if (password === "" || email === "") {
-    res.status(400).send("Please enter a valid email or password.");
+    return res.status(400).send("Please enter a valid email or password.");
   }
   if (email === getUserByEmail(email).email) {
-    res.status(400).send("This email address is already in use.");
+    return res.status(400).send("This email address is already in use.");
   }
   else {
     users[userId] = {
@@ -122,11 +122,11 @@ app.post("/login", (req, res) => {
   const inputEmail = req.body.email;
   const inputPassword = req.body.password;
   const user = getUserByEmail(inputEmail);
-  if (inputEmail !== user.email) {
-    res.status(403).send(`${inputEmail} not found.`);
+  if (user === undefined) {
+    return res.status(403).send(`${inputEmail} not found.`);
   }
   if (inputPassword !== user.password) {
-    res.status(403).send(`Incorrect password.`);
+    return res.status(403).send(`Incorrect password.`);
   }
   else {
     res.cookie('user_id',user.id);
