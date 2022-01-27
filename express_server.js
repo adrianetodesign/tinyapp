@@ -119,7 +119,7 @@ app.get("/register", (req, res) => {
   const templateVars = {
     user: users[userID]
   };
-  if (userID === undefined) {
+  if (userID) {
     return res.redirect("/urls");
   }
   return res.render("urls_register", templateVars);
