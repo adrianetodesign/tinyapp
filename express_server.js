@@ -17,25 +17,10 @@ app.use(cookieSession({
 app.set("view engine", "ejs");
 
 //--- Object used as the "Database" for URLs.
-const urlDatabase = {
-  "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "8Bj8DQ"
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: "8Bj8DQ"
-  }
-};
+const urlDatabase = {};
 
 //--- Object used as the "Database" for users.
-const users = {
-  "8Bj8DQ": {
-    id: "8Bj8DQ",
-    email: "admin@example.com",
-    password: bcrypt.hashSync("purple-people-eater", salt)
-  },
-};
+const users = {};
 
 // Function closure call.
 const {
