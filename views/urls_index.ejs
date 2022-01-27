@@ -21,11 +21,16 @@
           <th scope="col">Delete</th>
         </tr>
       </thead>
+      <% if (!user) { %>
+        <div class="alert alert-warning" role="alert">
+          Please <a href="/login" class="alert-link">login</a> or <a href="/register" class="alert-link">register</a> to see your short URLs.
+        </div>
+      <% } else { %>
       <tbody>
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
-            <td><%= urls[url] %></td>
+            <td><%= urls[url].longURL %></td>
             <td>
               <a class="btn btn-outline-primary" href="/urls/<%= url %>">Edit</a>
             </td>
@@ -37,6 +42,7 @@
           </tr>
         <% } %>
       </tbody>
+      <% } %>
     </table>
   </main>
   <!-- Bootstrap JS -->

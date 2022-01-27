@@ -16,6 +16,11 @@
       </div>
     <div class="card-footer text-muted">
       <h5>Edit</h5>
+      <% if (!user) { %>
+        <div class="alert alert-warning" role="alert">
+          Please <a href="/login" class="alert-link">login</a> or <a href="/register" class="alert-link">register</a> to edit your short URLs.
+        </div>
+      <% } %>
       <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
         <div class="form-group mb-2 mx-auto">
           <label for="newLongURL">New URL:</label>
