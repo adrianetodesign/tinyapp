@@ -130,9 +130,13 @@ app.get("/login", (req,res) => {
 
 //--- Get request to retrieve the registration page.
 app.get("/register", (req, res) => {
+  const userID = req.session.user_id;
   const templateVars = {
-    user: users[req.session.user_id]
+    user: users[userID]
   };
+  if (userID) {
+    return res.redirect("/urls");
+  }
   return res.render("urls_register", templateVars);
 });
 
