@@ -37,10 +37,12 @@ If you already have an account on TinyApp, you can click the login button and us
 If you don't have an account already, you can simply use the register button to create a new account with an email and a password.
 
 **Create New URL**
-On the header, you can see a "Create New URL" button. Clicking that will take you to a new page where you can enter any valid long URL to create a shortened one added to your shortened URL collection.
+On the header, you can see a "Create New URL" button. 
+Clicking that will take you to a new page where you can enter any valid long URL to create a shortened one added to your shortened URL collection.
 
 **Edit Existing URL**
-On the main page after you have logged in, you will see all of your shortened URLs in a list. You can click on edit beside any of those URLs to go to the specific shortened URL page.
+On the main page after you have logged in, you will see all of your shortened URLs in a list. 
+You can click on edit beside any of those URLs to go to the specific shortened URL page.
 Here, you can enter a new URL and click the edit button. This will have the shortened URL point to the new URL you have provided.
 
 **Delete URL**
