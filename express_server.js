@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
@@ -22,7 +23,7 @@ const users = {
   "8Bj8DQ": {
     id: "8Bj8DQ", 
     email: "admin@example.com", 
-    password: "purple-people-eater"
+    password: bcrypt.hashSync("purple-people-eater", 10)
   },
 }
 
@@ -50,6 +51,11 @@ function urlsForUser(id) {
 
 // Routing
 
+app.listen(PORT, () => {
+  console.log(`tinyapp listening on port ${PORT}!`);
+});
+
+// ---------- get routes ----------
 // Redirect for default route
 app.get("/", (req, res) => {
   res.redirect("/urls");
@@ -80,20 +86,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// reroute to new url page
-app.post("/urls", (req, res) => {
-  const userCookieID = req.cookies["user_id"];
-  if( userCookieID === undefined) {
-    return res.status(401).send("You must log in to create any new tiny urls.");
-  }
-  let newShortURL = generateRandomString(6);
-  urlDatabase[newShortURL] = {
-    longURL: req.body.longURL,
-    userID: userCookieID
-  }
-  res.redirect(`/urls/${newShortURL}`);
-});
-
 // Page for each individual url
 app.get("/urls/:shortURL", (req, res) => {
   const cookieUserID = req.cookies["user_id"];
@@ -112,6 +104,41 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// Redirect to actual URL of our short url.
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = urlDatabase[req.params.shortURL];
+  const templateVarsErr = {
+    user: users[req.cookies["user_id"]]
+  };
+
+  if (shortURL === undefined) {
+    templateVarsErr['errMsg'] = "The given shortURL does not exist."
+    return res.status(404).render("urls_error", templateVarsErr);
+  }
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  if (longURL === undefined) {
+    templateVarsErr['errMsg'] = "URL does not exist."
+    return res.status(302).render("urls_error", templateVarsErr);
+  }
+  return res.redirect(longURL);
+});
+
+app.get("/login", (req,res) => {
+  const templateVars = { 
+    user: users[req.cookies["user_id"]]
+  };
+  res.render("urls_login", templateVars);
+})
+
+// Get request to retrieve the registration page.
+app.get("/register", (req, res) => {
+  const templateVars = { 
+    user: users[req.cookies["user_id"]]
+  };
+  res.render("urls_register", templateVars);
+});
+
+// ---------- post routes ----------
 // Deletes the short url created
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
@@ -147,47 +174,19 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls/");
 });
 
-// Get request to retrieve the registration page.
-app.get("/register", (req, res) => {
-  const templateVars = { 
-    user: users[req.cookies["user_id"]]
-  };
-  res.render("urls_register", templateVars);
+// reroute to new url page
+app.post("/urls", (req, res) => {
+  const userCookieID = req.cookies["user_id"];
+  if( userCookieID === undefined) {
+    return res.status(401).send("You must log in to create any new tiny urls.");
+  }
+  let newShortURL = generateRandomString(6);
+  urlDatabase[newShortURL] = {
+    longURL: req.body.longURL,
+    userID: userCookieID
+  }
+  res.redirect(`/urls/${newShortURL}`);
 });
-
-// Post request for registering an email/password.
-app.post("/register", (req,res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  const userId =  generateRandomString(6);
-  const templateVarsErr = {
-    user: users[req.cookies["user_id"]]
-  };
-
-  if (password === "" || email === "") {
-    templateVarsErr["errMsg"] = "Incorrect Password.";
-    return res.status(400).render("urls_error", templateVarsErr);
-  }
-  if (getUserByEmail(email)) {
-    return res.status(400).send("This email address is already in use.");
-  }
-  else {
-    users[userId] = {
-      id: userId,
-      email: email,
-      password: password
-    };
-    res.cookie('user_id', userId);
-    return res.redirect("/urls");
-  }
-});
-
-app.get("/login", (req,res) => {
-  const templateVars = { 
-    user: users[req.cookies["user_id"]]
-  };
-  res.render("urls_login", templateVars);
-})
 
 // Login
 app.post("/login", (req, res) => {
@@ -202,7 +201,7 @@ app.post("/login", (req, res) => {
     templateVarsErr['errMsg'] = `${inputEmail} not found.`
     return res.status(403).render("urls_error", templateVarsErr)
   }
-  if (inputPassword !== user.password) {
+  if (!bcrypt.compareSync(inputPassword, user.password)) {
     templateVarsErr['errMsg'] = "Incorrect Password."
     return res.status(403).render("urls_error", templateVarsErr);
   }
@@ -218,25 +217,29 @@ app.post("/logout", (req, res) => {
   return res.redirect('/urls');
 });
 
-// Redirect to actual URL of our short url.
-app.get("/u/:shortURL", (req, res) => {
-  const shortURL = urlDatabase[req.params.shortURL];
+// Post request for registering an email/password.
+app.post("/register", (req,res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const userId =  generateRandomString(6);
   const templateVarsErr = {
     user: users[req.cookies["user_id"]]
   };
 
-  if (shortURL === undefined) {
-    templateVarsErr['errMsg'] = "The given shortURL does not exist."
-    return res.status(404).render("urls_error", templateVarsErr);
+  if (password === "" || email === "") {
+    templateVarsErr["errMsg"] = "Please enter a valid email and password.";
+    return res.status(400).render("urls_error", templateVarsErr);
   }
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  if (longURL === undefined) {
-    templateVarsErr['errMsg'] = "URL does not exist."
-    return res.status(302).render("urls_error", templateVarsErr);
+  if (getUserByEmail(email)) {
+    return res.status(400).send("This email address is already in use.");
   }
-  return res.redirect(longURL);
-});
-
-app.listen(PORT, () => {
-  console.log(`tinyapp listening on port ${PORT}!`);
+  else {
+    users[userId] = {
+      id: userId,
+      email: email,
+      password: bcrypt.hashSync(password, 10)
+    };
+    res.cookie('user_id', userId);
+    return res.redirect("/urls");
+  }
 });
