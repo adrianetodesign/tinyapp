@@ -4,7 +4,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["URLs Index Page when logged in."](https://github.com/lighthouse-labs/tinyapp/blob/main/docs/urls-page.png)
+!["URLs Index Page when logged in."](https://github.com/adrianetodesign/tinyapp/blob/main/docs/urls-page.png)
 
 !["screenshot description"](#)
 
