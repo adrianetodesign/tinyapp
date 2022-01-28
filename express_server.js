@@ -61,6 +61,7 @@ app.get("/urls/new", (req, res) => {
     urls: urlDatabase,
     user: users[req.session.user_id]
   };
+  // Redirects to login page if no user is logged in.
   if (req.session.user_id === undefined) {
     return res.redirect("/login");
   }
@@ -120,6 +121,7 @@ app.get("/register", (req, res) => {
   const templateVars = {
     user: users[userID]
   };
+  // If already logged in, redirects user to index page.
   if (userID) {
     return res.redirect("/urls");
   }
