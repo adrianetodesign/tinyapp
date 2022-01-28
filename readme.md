@@ -1,6 +1,10 @@
 # TinyApp Project
 
-Long urls can be cumbersome to copy and paste easily. WHy not use a shortened link to save your characters? This way you can use them in situations where you might have only 280 characters or less. (Twitter changed their limit from 140 to 280 in 2019!)
+Long urls can be cumbersome to copy and paste easily. 
+WHy not use a shortened link to save your characters? 
+This way you can use them in situations where you might have only 280 characters or less. 
+(Twitter changed their limit from 140 to 280 in 2019!)
+
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
 
 ## Final Product
