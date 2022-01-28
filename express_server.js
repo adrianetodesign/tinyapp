@@ -79,6 +79,7 @@ app.get("/urls/:shortURL", (req, res) => {
     user: users[cookieUserID]
   };
 
+  // Return an error if user tries to access a shortURL they didn't create.
   if (cookieUserID !== urlDatabase[req.params.shortURL].userID) {
     templateVarsErr['errMsg'] = "You are not authorized to view this shortURL.";
     return res.status(401).render("urls_error", templateVarsErr);
